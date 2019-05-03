@@ -37,7 +37,7 @@ get '/' do
 end
 
 get '/products' do
-  products = Stripe::Product.list(limit: 10, type: "good")
+  products = Stripe::SKU.list(limit: 10)
 
   content_type :json
   status 200
