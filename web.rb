@@ -36,6 +36,14 @@ get '/' do
   return log_info("Great, your backend is set up! Now you can configure the Stripe Terminal example apps to point here.")
 end
 
+get '/products' do
+  products = Stripe::Product.list(limit: 10, type: "good")
+
+  content_type :json
+  status 200
+  products.to_json 
+end
+
 # This endpoint is used by the example apps to retrieve a ConnectionToken
 # from Stripe.
 # iOS           https://stripe.com/docs/terminal/ios#connection-token
