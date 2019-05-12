@@ -185,3 +185,46 @@ post '/attach_payment_method_to_customer' do
   status 200
   return payment_method.to_json
 end
+
+def lookupOrCreateCustomer(email)
+  customerEmail = email
+  begin
+    customerList = Stripe::Customer.list(email: customerEmail, limit: 1).data
+    if (customerList.length == 1)
+      return customerList[0]
+    else
+      return Stripe::Customer.create(email: customerEmail)
+    end
+  rescue Stripe::StripeError => e
+    status 402
+    return log_info("Error creating or retreiving customer! #{e.message}")
+  end
+end
+
+post '/email_receipt' do
+  begin
+    customer = lookupOrCreateCustomer(params[:email])
+
+    payment_method = Stripe::PaymentMethod.attach(
+      params[:pi],
+      {
+        customer: customer.id,
+        expand: ["customer"],
+    })
+  rescue Stripe::StripeError => e
+    status 402
+    return log_info("Error attaching PaymentMethod to Customer! #{e.message}")
+  end
+
+  log_info("Attached PaymentMethod to Customer: #{customer.id}")
+
+  Stripe::PaymentIntent.update(
+    params[:pi],
+    {
+      receipt_email: params[:email],
+    }
+  )
+
+  status 200
+  return payment_method.to_json
+end
