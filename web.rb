@@ -218,13 +218,14 @@ post '/email_receipt' do
 
   # log_info("Attached PaymentMethod to Customer: #{customer.id}")
 
-  payment_intent = Stripe::PaymentIntent.update(
-    params[:pi],
-    {
-      receipt_email: params[:email],
-    }
-  )
+    payment_intent = Stripe::PaymentIntent.update(
+      params[:pi],
+      {
+        receipt_email: params[:email],
+      }
+    )
 
-  status 200
-  return payment_intent.to_json
+    status 200
+    return payment_intent.to_json
+  end
 end
