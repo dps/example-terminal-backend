@@ -203,22 +203,22 @@ end
 
 post '/email_receipt' do
   begin
-    customer = lookupOrCreateCustomer(params[:email])
+  #   customer = lookupOrCreateCustomer(params[:email])
 
-    payment_method = Stripe::PaymentMethod.attach(
-      params[:pi],
-      {
-        customer: customer.id,
-        expand: ["customer"],
-    })
-  rescue Stripe::StripeError => e
-    status 402
-    return log_info("Error attaching PaymentMethod to Customer! #{e.message}")
-  end
+  #   payment_method = Stripe::PaymentMethod.attach(
+  #     params[:pi],
+  #     {
+  #       customer: customer.id,
+  #       expand: ["customer"],
+  #   })
+  # rescue Stripe::StripeError => e
+  #   status 402
+  #   return log_info("Error attaching PaymentMethod to Customer! #{e.message}")
+  # end
 
-  log_info("Attached PaymentMethod to Customer: #{customer.id}")
+  # log_info("Attached PaymentMethod to Customer: #{customer.id}")
 
-  Stripe::PaymentIntent.update(
+  payment_intent = Stripe::PaymentIntent.update(
     params[:pi],
     {
       receipt_email: params[:email],
@@ -226,5 +226,5 @@ post '/email_receipt' do
   )
 
   status 200
-  return payment_method.to_json
+  return payment_intent.to_json
 end
